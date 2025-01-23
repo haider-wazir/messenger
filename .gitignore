@@ -7,6 +7,10 @@
 # Ignore bundler config.
 /.bundle
 
+# Ignore all environment files (except templates).
+/.env*
+!/.env*.erb
+
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
@@ -18,56 +22,22 @@
 !/tmp/pids/
 !/tmp/pids/.keep
 
-# Ignore uploaded files in development.
+# Ignore storage (uploaded files in development and any SQLite databases).
 /storage/*
 !/storage/.keep
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
 
+/public/assets
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-/config/credentials.yml.enc
 
-# Ignore node_modules
-/node_modules
-/.yarn-integrity
-
-# Ignore precompiled javascript packs
-/public/packs
-/public/packs-test
-/public/assets
+# Vite Ruby
 /public/vite*
+node_modules
+# Vite uses dotenv and suggests to ignore local-only env files. See
+# https://vitejs.dev/guide/env-and-mode.html#env-files
+*.local
 
-# Ignore yarn files
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
-
-# Ignore environment files
-.env
-.env.*
-
-# Ignore test coverage
-/coverage/*
-
-# Ignore system files
-.DS_Store
-*.swp
-*~
-
-# Ignore database dumps
-*.dump
-
-# Ignore redis binary dump (dump.rdb) files
-*.rdb
-
-# Ignore IDE specific files
-.idea/
-.vscode/
-*.sublime-workspace
-*.sublime-project
-
-# Ignore test files
-/spec/tmp
-/spec/examples.txt
