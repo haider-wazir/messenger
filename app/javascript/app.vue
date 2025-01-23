@@ -124,10 +124,12 @@ export default {
         // Set default Authorization header for all requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         
-        this.loadUsers()
-        this.loadMessages()
-        this.loadUnreadCounts()
+        // Setup everything after setting the Authorization header
         this.setupCable()
+        this.loadUsers().then(() => {
+          this.loadMessages()
+          this.loadUnreadCounts()
+        })
       } catch (error) {
         console.error('Error initializing app:', error)
         this.logout()
@@ -145,16 +147,24 @@ export default {
           password: this.form.password
         })
         
-        localStorage.setItem('token', response.data.token)
-        const decoded = jwtDecode(response.data.token)
+        const token = response.data.token
+        localStorage.setItem('token', token)
+        
+        // Set Authorization header right after getting the token
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        
+        const decoded = jwtDecode(token)
         this.currentUser = {
           id: decoded.user_id,
           username: decoded.username
         }
         
         this.error = null
+        
+        // Load data after setting up auth header
         await this.loadUsers()
         await this.loadUnreadCounts()
+        this.setupCable()
         this.setupUnreadSubscription()
         this.setupMessageSubscription()
       } catch (error) {
