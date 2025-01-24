@@ -6,9 +6,10 @@ A real-time messaging application built with Ruby on Rails and Vue.js.
 
 - User authentication (register, login, logout)
 - Real-time private and group messaging
-- Unread message notifications
+- Real-time unread message notifications
 - Message history
 - User presence indicators
+- Delete sent messages
 
 ## Prerequisites
 

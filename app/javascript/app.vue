@@ -65,6 +65,11 @@
             <div class="message-header">
               <span class="sender">{{ message.sender.username }}</span>
               <span class="time">{{ new Date(message.created_at).toLocaleTimeString() }}</span>
+              <button v-if="message.sender.id === currentUser.id" 
+                      class="delete-btn"
+                      @click="deleteMessage(message)">
+                ×
+              </button>
             </div>
             <div class="message-text">{{ message.content }}</div>
           </div>
@@ -232,25 +237,19 @@ export default {
 
     async sendMessage() {
       if (!this.newMessage.trim()) return
-      
-      console.log('Sending message:', {
-        content: this.newMessage,
-        recipient_id: this.selectedUser?.id || null
-      })
-      
+
       try {
-        const response = await axios.post('/api/v1/messages', {
+        const endpoint = '/api/v1/messages'
+        const payload = {
           content: this.newMessage,
-          recipient_id: this.selectedUser?.id || null
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-        console.log('Message sent successfully:', response.data)
-        
+          recipient_id: this.selectedUser?.id
+        }
+
+        const response = await axios.post(endpoint, payload)
+        // Don't push the message here, let the subscription handle it
         this.newMessage = ''
-        // Don't add the message here since it will come through the WebSocket
       } catch (error) {
-        console.error('Error sending message:', error.response || error)
+        console.error('Error sending message:', error)
       }
     },
 
@@ -319,38 +318,35 @@ export default {
     },
 
     setupMessageSubscription() {
-      if (this.messageSubscription) {
-        this.messageSubscription.unsubscribe()
-      }
+      if (!this.currentUser) return
 
       const channelName = this.selectedUser
         ? `messages_${[this.currentUser.id, this.selectedUser.id].sort().join('_')}`
         : 'messages_group'
-      
+
       this.messageSubscription = this.cable.subscriptions.create(
-        { 
-          channel: 'MessagesChannel',
-          room: channelName
-        },
+        { channel: 'MessagesChannel', room: channelName },
         {
           received: (data) => {
-            // Add message to the list if it's not already there
-            const messageExists = this.messages.some(m => m.id === data.id)
-            if (!messageExists) {
-              this.messages = [...this.messages, data]
-              this.$nextTick(() => {
-                this.scrollToBottom()
-              })
-              
-              // Update unread counts for new messages not from current user
-              if (data.sender.id !== this.currentUser.id) {
-                const key = this.selectedUser ? this.selectedUser.id.toString() : 'group'
-                const newCounts = { ...this.unreadCounts }
-                newCounts[key] = (newCounts[key] || 0) + 1
-                this.unreadCounts = newCounts
-              }
+            if (data.type === 'deletion') {
+              // Handle message deletion
+              this.messages = this.messages.filter(m => m.id !== data.id)
             } else {
-              console.log('Message already exists in list')
+              // Handle new message
+              const isRelevantMessage = this.selectedUser
+                ? (data.sender_id === this.selectedUser.id && data.recipient_id === this.currentUser.id) ||
+                  (data.sender_id === this.currentUser.id && data.recipient_id === this.selectedUser.id)
+                : !data.recipient_id
+
+              if (isRelevantMessage) {
+                const messageExists = this.messages.some(m => m.id === data.id)
+                if (!messageExists) {
+                  this.messages.push(data)
+                  this.$nextTick(() => {
+                    this.scrollToBottom()
+                  })
+                }
+              }
             }
           }
         }
@@ -381,6 +377,15 @@ export default {
           }
         }
       )
+    },
+
+    async deleteMessage(message) {
+      try {
+        await axios.delete(`/api/v1/messages/${message.id}`)
+        this.messages = this.messages.filter(m => m.id !== message.id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
     },
 
     logout() {
@@ -540,8 +545,31 @@ export default {
 }
 
 .message-header {
-  margin-bottom: 0.25rem;
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0 4px;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.message:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  color: #ff4444;
 }
 
 .sender {
@@ -555,6 +583,10 @@ export default {
 
 .own-message .time {
   color: #e9ecef;
+}
+
+.message-text {
+  padding: 0.5rem;
 }
 
 .message-input {

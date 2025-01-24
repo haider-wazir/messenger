@@ -7,6 +7,7 @@ class Message < ApplicationRecord
   
   after_create :broadcast_message
   after_create :create_unread_messages
+  after_destroy :broadcast_deletion
   
   private
   
@@ -18,6 +19,17 @@ class Message < ApplicationRecord
     else
       # Group message - broadcast to group channel
       ActionCable.server.broadcast('messages_group', self.as_json(include: :sender))
+    end
+  end
+  
+  def broadcast_deletion
+    if recipient_id
+      # Private message - broadcast deletion to both sender and recipient
+      channel_name = "messages_#{[sender_id, recipient_id].sort.join('_')}"
+      ActionCable.server.broadcast(channel_name, { type: 'deletion', id: id })
+    else
+      # Group message - broadcast deletion to group channel
+      ActionCable.server.broadcast('messages_group', { type: 'deletion', id: id })
     end
   end
   
