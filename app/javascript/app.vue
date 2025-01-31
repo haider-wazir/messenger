@@ -187,7 +187,8 @@ export default {
     async loadUsers() {
       try {
         const response = await axios.get('/api/v1/users')
-        this.users = response.data.filter(user => user.id !== this.currentUser.id)
+        // Convert IDs to numbers for consistent comparison
+        this.users = response.data.filter(user => Number(user.id) !== Number(this.currentUser.id))
       } catch (error) {
         console.error('Error loading users:', error)
       }
