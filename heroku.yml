@@ -1,0 +1,20 @@
+setup:
+  addons:
+    - plan: heroku-postgresql:hobby-dev
+    - plan: heroku-redis:hobby-dev
+  config:
+    RACK_ENV: production
+    RAILS_ENV: production
+
+build:
+  docker:
+    web: Dockerfile
+
+release:
+  command:
+    - bin/rails db:migrate
+  image: web
+
+run:
+  web: bundle exec puma -C config/puma.rb
+  worker: bundle exec rake jobs:work

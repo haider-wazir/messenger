@@ -1,0 +1,16 @@
+development:
+  :concurrency: 5
+
+production:
+  :concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 10) %>
+  :timeout: 8
+  :max_retries: 3
+  :queues:
+    - [default, 1]
+    - [mailers, 2]
+    - [active_storage, 2]
+
+:max_retries: 5
+:retry_delay: 2
+:dead_max_jobs: 10000
+:dead_timeout_in_seconds: 604800

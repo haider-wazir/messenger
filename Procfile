@@ -1,2 +1,3 @@
-web: rails server -p 3000
-vite: bin/vite dev
+web: bundle exec puma -C config/puma.rb
+worker: bundle exec rake jobs:work
+release: bin/rails db:migrate
