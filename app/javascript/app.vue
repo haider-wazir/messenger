@@ -303,20 +303,14 @@ export default {
           return
         }
         
-        // Disconnect existing connection if any
-        if (this.cable) {
-          this.cable.disconnect()
+        // Only create a new connection if we don't have one
+        if (!this.cable) {
+          this.cable = createConsumer(`/cable?token=${token}`)
+          console.log('ActionCable consumer created')
         }
         
-        // Create consumer with token in URL for proper authentication
-        this.cable = createConsumer(`/cable?token=${token}`)
-        console.log('ActionCable consumer created with token:', token)
-        
-        // Wait a bit to ensure connection is established
-        setTimeout(() => {
-          this.setupMessageSubscription()
-          this.setupUnreadSubscription()
-        }, 500)
+        this.setupMessageSubscription()
+        this.setupUnreadSubscription()
       } catch (error) {
         console.error('Error setting up ActionCable:', error)
         this.logout()
@@ -326,14 +320,21 @@ export default {
     setupMessageSubscription() {
       if (!this.currentUser) return
 
+      // Unsubscribe from old subscription if it exists
+      if (this.messageSubscription) {
+        this.messageSubscription.unsubscribe()
+      }
+
       const channelName = this.selectedUser
         ? `messages_${[this.currentUser.id, this.selectedUser.id].sort().join('_')}`
         : 'messages_group'
 
+      console.log('Subscribing to channel:', channelName)
       this.messageSubscription = this.cable.subscriptions.create(
         { channel: 'MessagesChannel', room: channelName },
         {
           received: async (data) => {
+            console.log('Received message:', data)
             if (data.type === 'deletion') {
               // Handle message deletion
               this.messages = this.messages.filter(m => m.id !== data.id)
