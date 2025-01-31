@@ -45,36 +45,15 @@ Rails.application.configure do
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "debug")
 
   # Use a different cache store in production.
-  config.cache_store = :redis_cache_store, {
-    url: ENV["REDIS_URL"],
-    ssl: true,
-    ssl_params: {
-      ca_file: "/etc/ssl/certs/ca-certificates.crt"
-    }
-  }
+  config.cache_store = :memory_store
 
   # Use a real queuing backend for Active Job
   config.active_job.queue_adapter = :async
 
   # Enable Action Cable for WebSocket support
   config.action_cable.mount_path = nil
-  config.action_cable.url = ENV["ACTION_CABLE_URL"]
-  config.action_cable.allowed_request_origins = [ENV["APP_URL"]].compact
-  config.action_cable.cable = {
-    adapter: :redis,
-    url: ENV["REDIS_URL"],
-    ssl: true,
-    ssl_params: {
-      ca_file: "/etc/ssl/certs/ca-certificates.crt"
-    }
-  }
-  config.redis = {
-    url: ENV.fetch('REDIS_URL'),
-    ssl: true,
-    ssl_params: {
-      verify_mode: OpenSSL::SSL::VERIFY_NONE
-    }
-  }
+  config.action_cable.url = ENV.fetch('ACTION_CABLE_URL')
+  config.action_cable.allowed_request_origins = [ENV.fetch('APP_URL', 'http://localhost:3000')]
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
