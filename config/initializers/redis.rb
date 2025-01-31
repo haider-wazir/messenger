@@ -1,6 +1,6 @@
 require 'redis'
 
-Redis.current = Redis.new(
+$redis = Redis.new(
   url: ENV.fetch('REDIS_URL'),
   ssl: true,
   ssl_params: {
