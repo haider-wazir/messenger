@@ -119,6 +119,9 @@ export default {
     const token = localStorage.getItem('token')
     if (token) {
       try {
+        // Set the Authorization header for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        
         const decoded = jwtDecode(token)
         this.currentUser = {
           id: decoded.user_id,
@@ -126,18 +129,12 @@ export default {
         }
         console.log('Current user:', this.currentUser)
         
-        // Set default Authorization header for all requests
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        
-        // Setup everything after setting the Authorization header
+        await this.loadUsers()
         this.setupCable()
-        this.loadUsers().then(() => {
-          this.loadMessages()
-          this.loadUnreadCounts()
-        })
       } catch (error) {
-        console.error('Error initializing app:', error)
-        this.logout()
+        console.error('Error loading user:', error)
+        localStorage.removeItem('token')
+        this.currentUser = null
       }
     } else {
       console.log('No token found')
@@ -152,7 +149,11 @@ export default {
           password: this.form.password
         })
         
-        localStorage.setItem('token', response.data.token)
+        const token = response.data.token
+        localStorage.setItem('token', token)
+        
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        
         this.currentUser = response.data.user
         this.error = null
         
@@ -172,7 +173,12 @@ export default {
           username: this.form.username
         })
         
-        localStorage.setItem('token', response.data.token)
+        const token = response.data.token
+        localStorage.setItem('token', token)
+        
+        // Set the Authorization header for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        
         this.currentUser = response.data.user
         this.error = null
         
