@@ -32,12 +32,9 @@ Rails.application.configure do
   # Enable serving of files from the /app/javascript folder
   config.serve_static_assets = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # Configure Vite
-  if defined?(ViteRuby)
-    config.vite_rails.build_output_dir = 'dist'
-    config.vite_rails.public_output_dir = 'vite'
-    config.vite_rails.manifest = true
-  end
+  # Assets configuration
+  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.assets.compile = false
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
