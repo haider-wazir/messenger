@@ -6,7 +6,13 @@ class Api::V1::AuthController < ApplicationController
     
     if @user.save
       token = encode_token(user_id: @user.id)
-      render json: { token: token }, status: :created
+      render json: { 
+        token: token,
+        user: {
+          id: @user.id,
+          username: @user.username
+        }
+      }, status: :created
     else
       render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
@@ -17,7 +23,13 @@ class Api::V1::AuthController < ApplicationController
     
     if @user&.authenticate(params[:password])
       token = encode_token(user_id: @user.id)
-      render json: { token: token }
+      render json: { 
+        token: token,
+        user: {
+          id: @user.id,
+          username: @user.username
+        }
+      }
     else
       render json: { error: 'Invalid email or password' }, status: :unauthorized
     end

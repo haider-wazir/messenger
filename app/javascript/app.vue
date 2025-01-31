@@ -152,26 +152,12 @@ export default {
           password: this.form.password
         })
         
-        const token = response.data.token
-        localStorage.setItem('token', token)
-        
-        // Set Authorization header right after getting the token
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        
-        const decoded = jwtDecode(token)
-        this.currentUser = {
-          id: decoded.user_id,
-          username: decoded.username
-        }
-        
+        localStorage.setItem('token', response.data.token)
+        this.currentUser = response.data.user
         this.error = null
         
-        // Load data after setting up auth header
         await this.loadUsers()
-        await this.loadUnreadCounts()
         this.setupCable()
-        this.setupUnreadSubscription()
-        this.setupMessageSubscription()
       } catch (error) {
         console.error('Login error:', error)
         this.error = error.response?.data?.error || 'Login failed'
@@ -187,14 +173,11 @@ export default {
         })
         
         localStorage.setItem('token', response.data.token)
-        const decoded = jwtDecode(response.data.token)
-        this.currentUser = {
-          id: decoded.user_id,
-          username: decoded.username
-        }
-        
+        this.currentUser = response.data.user
         this.error = null
+        
         await this.loadUsers()
+        this.setupCable()
       } catch (error) {
         console.error('Registration error:', error)
         this.error = error.response?.data?.errors?.join(', ') || 'Registration failed'
