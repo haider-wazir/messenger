@@ -34,9 +34,9 @@ Rails.application.configure do
 
   # Configure Vite
   if defined?(ViteRuby)
-    config.vite_ruby.build_output_dir = 'dist'
-    config.vite_ruby.public_output_dir = 'vite'
-    config.vite_ruby.manifest = true
+    config.vite_rails.build_output_dir = 'dist'
+    config.vite_rails.public_output_dir = 'vite'
+    config.vite_rails.manifest = true
   end
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
