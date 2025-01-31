@@ -18,6 +18,7 @@ class User < ApplicationRecord
   end
 
   def broadcast_new_user
-    ActionCable.server.broadcast('unread_channel', { type: 'new_user', user: self.as_json(except: :password_digest) })
+    # Broadcast to global channel for new users
+    ActionCable.server.broadcast('unread_global', { type: 'new_user', user: self.as_json(except: :password_digest) })
   end
 end
