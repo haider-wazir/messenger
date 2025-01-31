@@ -311,11 +311,17 @@ export default {
       this.messageSubscription = this.cable.subscriptions.create(
         { channel: 'MessagesChannel', room: channelName },
         {
-          received: (data) => {
+          received: async (data) => {
             if (data.type === 'deletion') {
               // Handle message deletion
               this.messages = this.messages.filter(m => m.id !== data.id)
             } else {
+              // Check if sender is in our users list
+              const senderExists = this.users.some(u => u.id === data.sender_id)
+              if (!senderExists && data.sender_id !== this.currentUser.id) {
+                await this.loadUsers()  // Reload users list to get the new user
+              }
+
               // Handle new message
               const isRelevantMessage = this.selectedUser
                 ? (data.sender_id === this.selectedUser.id && data.recipient_id === this.currentUser.id) ||
