@@ -68,6 +68,13 @@ Rails.application.configure do
       ca_file: "/etc/ssl/certs/ca-certificates.crt"
     }
   }
+  config.action_cable.redis = {
+    url: ENV.fetch('REDIS_URL'),
+    ssl: true,
+    ssl_params: {
+      verify_mode: OpenSSL::SSL::VERIFY_NONE
+    }
+  }
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
