@@ -2,9 +2,5 @@ require 'redis'
 
 $redis = Redis.new(
   url: ENV.fetch('REDIS_URL'),
-  ssl: true,
-  ssl_params: { 
-    verify_mode: OpenSSL::SSL::VERIFY_PEER,
-    ca_file: "/etc/ssl/certs/ca-certificates.crt"
-  }
+  ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
 )
