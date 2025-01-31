@@ -115,7 +115,6 @@ export default {
   },
 
   mounted() {
-    console.log('App mounted')
     const token = localStorage.getItem('token')
     if (token) {
       try {
@@ -127,7 +126,6 @@ export default {
           id: decoded.user_id,  // Use user_id from JWT token
           username: decoded.username
         }
-        console.log('Current user:', this.currentUser)
         
         this.loadUsers().then(() => {
           this.setupCable()
@@ -137,12 +135,9 @@ export default {
         window.addEventListener('focus', this.handleWindowFocus)
         window.addEventListener('blur', this.handleWindowBlur)
       } catch (error) {
-        console.error('Error loading user:', error)
         localStorage.removeItem('token')
         this.currentUser = null
       }
-    } else {
-      console.log('No token found')
     }
   },
 
@@ -177,7 +172,6 @@ export default {
         await this.loadUsers()
         this.setupCable()
       } catch (error) {
-        console.error('Login error:', error)
         this.error = error.response?.data?.error || 'Login failed'
       }
     },
@@ -207,7 +201,6 @@ export default {
         await this.loadUsers()
         this.setupCable()
       } catch (error) {
-        console.error('Registration error:', error)
         this.error = error.response?.data?.errors?.join(', ') || 'Registration failed'
       }
     },
@@ -280,7 +273,6 @@ export default {
     },
 
     async selectUser(user) {
-      console.log('Selecting user:', user)
       this.messages = [] // Clear messages immediately
       this.selectedUser = user
       
@@ -302,30 +294,23 @@ export default {
     },
 
     setupCable() {
-      console.log('Setting up ActionCable...')
       const token = localStorage.getItem('token')
       
-      if (!token) {
-        console.error('No token found')
-        return
-      }
+      if (!token) return
       
       try {
         // Check if token is expired
         const decodedToken = jwtDecode(token)
         if (decodedToken.exp * 1000 < Date.now()) {
-          console.error('Token expired')
           this.logout()
           return
         }
         
         // Always disconnect and recreate the connection to ensure it's fresh
         if (this.cable) {
-          console.log('Disconnecting existing cable connection')
           this.cable.disconnect()
         }
         
-        console.log('Creating new cable connection')
         this.cable = createConsumer(`/cable?token=${token}`)
         
         // Setup subscriptions after a short delay to ensure connection is ready
@@ -334,7 +319,6 @@ export default {
           this.setupUnreadSubscription()
         }, 100)
       } catch (error) {
-        console.error('Error setting up ActionCable:', error)
         this.logout()
       }
     },
@@ -344,7 +328,6 @@ export default {
 
       // Unsubscribe from old subscription if it exists
       if (this.messageSubscription) {
-        console.log('Unsubscribing from old channel')
         this.messageSubscription.unsubscribe()
       }
 
@@ -352,21 +335,10 @@ export default {
         ? `messages_${[this.currentUser.id, this.selectedUser.id].sort().join('_')}`
         : 'messages_group'
 
-      console.log('Subscribing to channel:', channelName)
       this.messageSubscription = this.cable.subscriptions.create(
         { channel: 'MessagesChannel', room: channelName },
         {
-          connected: () => {
-            console.log('Connected to channel:', channelName)
-          },
-          disconnected: () => {
-            console.log('Disconnected from channel:', channelName)
-          },
-          rejected: () => {
-            console.log('Subscription rejected for channel:', channelName)
-          },
           received: async (data) => {
-            console.log('Received message on channel:', channelName, data)
             if (data.type === 'deletion') {
               // Handle message deletion
               this.messages = this.messages.filter(m => m.id !== data.id)
@@ -383,28 +355,15 @@ export default {
                   (data.sender_id === this.currentUser.id && data.recipient_id === this.selectedUser.id)
                 : !data.recipient_id
 
-              console.log('Message relevance:', {
-                isRelevantMessage,
-                selectedUserId: this.selectedUser?.id,
-                senderId: data.sender_id,
-                recipientId: data.recipient_id,
-                currentUserId: this.currentUser.id
-              })
-
               if (isRelevantMessage) {
                 // Add the message if it's not already in our list
                 const messageExists = this.messages.some(m => m.id === data.id)
                 if (!messageExists) {
-                  console.log('Adding new message to UI')
                   this.messages.push(data)
                   this.$nextTick(() => {
                     this.scrollToBottom()
                   })
-                } else {
-                  console.log('Message already exists in UI')
                 }
-              } else {
-                console.log('Message not relevant for current chat')
               }
             }
           }
@@ -421,8 +380,6 @@ export default {
         { channel: 'UnreadChannel' },
         {
           received: (data) => {
-            console.log('Received unread counts:', data)
-            
             // Update all unread counts
             const newCounts = { ...this.unreadCounts }
             Object.entries(data).forEach(([key, count]) => {
@@ -467,7 +424,6 @@ export default {
     },
 
     handleWindowFocus() {
-      console.log('Window focused')
       if (this.currentUser) {
         // Reconnect WebSocket and reload messages
         this.setupCable()
@@ -478,7 +434,6 @@ export default {
     },
 
     handleWindowBlur() {
-      console.log('Window blurred')
       // Keep the connection alive even when window is not focused
     },
   }
