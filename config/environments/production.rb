@@ -32,9 +32,8 @@ Rails.application.configure do
   # Enable serving of files from the /app/javascript folder
   config.serve_static_assets = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # Assets configuration
+  # Enable serving of static files from the /public folder
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
-  config.assets.compile = false
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
