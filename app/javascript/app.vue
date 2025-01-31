@@ -372,6 +372,8 @@ export default {
     },
 
     setupUnreadSubscription() {
+      if (!this.currentUser) return
+
       if (this.unreadSubscription) {
         this.unreadSubscription.unsubscribe()
       }
@@ -380,16 +382,24 @@ export default {
         { channel: 'UnreadChannel' },
         {
           received: (data) => {
-            // Update all unread counts
-            const newCounts = { ...this.unreadCounts }
-            Object.entries(data).forEach(([key, count]) => {
-              if (count > 0) {
-                newCounts[key] = count
-              } else {
-                delete newCounts[key]
+            if (data.type === 'new_user') {
+              // Add new user to the list if not already present
+              const userExists = this.users.some(u => u.id === data.user.id)
+              if (!userExists && data.user.id !== this.currentUser.id) {
+                this.users.push(data.user)
               }
-            })
-            this.unreadCounts = newCounts
+            } else {
+              // Update all unread counts
+              const newCounts = { ...this.unreadCounts }
+              Object.entries(data).forEach(([key, count]) => {
+                if (count > 0) {
+                  newCounts[key] = count
+                } else {
+                  delete newCounts[key]
+                }
+              })
+              this.unreadCounts = newCounts
+            }
           }
         }
       )
