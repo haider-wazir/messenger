@@ -124,13 +124,14 @@ export default {
         
         const decoded = jwtDecode(token)
         this.currentUser = {
-          id: decoded.user_id,
+          id: decoded.user_id,  // Use user_id from JWT token
           username: decoded.username
         }
         console.log('Current user:', this.currentUser)
         
-        await this.loadUsers()
-        this.setupCable()
+        this.loadUsers().then(() => {
+          this.setupCable()
+        })
       } catch (error) {
         console.error('Error loading user:', error)
         localStorage.removeItem('token')
@@ -152,9 +153,15 @@ export default {
         const token = response.data.token
         localStorage.setItem('token', token)
         
+        // Set the Authorization header for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         
-        this.currentUser = response.data.user
+        // Use decoded token to ensure we have the same user_id as the backend
+        const decoded = jwtDecode(token)
+        this.currentUser = {
+          id: decoded.user_id,
+          username: decoded.username
+        }
         this.error = null
         
         await this.loadUsers()
@@ -179,7 +186,12 @@ export default {
         // Set the Authorization header for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         
-        this.currentUser = response.data.user
+        // Use decoded token to ensure we have the same user_id as the backend
+        const decoded = jwtDecode(token)
+        this.currentUser = {
+          id: decoded.user_id,
+          username: decoded.username
+        }
         this.error = null
         
         await this.loadUsers()
