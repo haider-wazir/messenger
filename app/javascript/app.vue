@@ -248,7 +248,11 @@ export default {
         }
 
         const response = await axios.post(endpoint, payload)
-        // Don't push the message here, let the subscription handle it
+        // Add the message immediately for the sender
+        this.messages.push(response.data)
+        this.$nextTick(() => {
+          this.scrollToBottom()
+        })
         this.newMessage = ''
       } catch (error) {
         console.error('Error sending message:', error)
@@ -267,15 +271,17 @@ export default {
 
     async selectUser(user) {
       console.log('Selecting user:', user)
+      this.messages = [] // Clear messages immediately
       this.selectedUser = user
       
       // Clear unread count immediately
       const key = user ? user.id.toString() : 'group'
       this.unreadCounts[key] = 0
       
+      // Setup subscription before loading messages to not miss any
+      this.setupMessageSubscription()
       await this.loadMessages()
       await this.markMessagesAsRead()
-      this.setupMessageSubscription()
     },
 
     scrollToBottom() {
@@ -352,8 +358,9 @@ export default {
                 : !data.recipient_id
 
               if (isRelevantMessage) {
+                // Only add the message if it's not from the current user (to avoid duplicates)
                 const messageExists = this.messages.some(m => m.id === data.id)
-                if (!messageExists) {
+                if (!messageExists && data.sender_id !== this.currentUser.id) {
                   this.messages.push(data)
                   this.$nextTick(() => {
                     this.scrollToBottom()
