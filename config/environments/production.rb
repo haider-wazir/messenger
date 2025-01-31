@@ -68,7 +68,7 @@ Rails.application.configure do
       ca_file: "/etc/ssl/certs/ca-certificates.crt"
     }
   }
-  config.action_cable.redis = {
+  config.redis = {
     url: ENV.fetch('REDIS_URL'),
     ssl: true,
     ssl_params: {
