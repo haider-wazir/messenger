@@ -33,9 +33,11 @@ Rails.application.configure do
   config.serve_static_assets = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Configure Vite
-  config.vite.build_output_dir = 'dist'
-  config.vite.public_output_dir = 'vite-dev'
-  config.vite.manifest = true
+  if defined?(ViteRuby)
+    config.vite_ruby.build_output_dir = 'dist'
+    config.vite_ruby.public_output_dir = 'vite'
+    config.vite_ruby.manifest = true
+  end
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
