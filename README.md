@@ -224,6 +224,77 @@ sudo systemctl enable puma
 sudo systemctl start puma
 ```
 
+## Heroku Deployment
+
+### Prerequisites
+
+1. [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+2. A Heroku account
+3. Git installed
+
+### Setup Steps
+
+1. Create a new Heroku app:
+```bash
+heroku create your-app-name
+```
+
+2. Add PostgreSQL addon:
+```bash
+heroku addons:create heroku-postgresql:mini
+```
+
+3. Add Redis addon:
+```bash
+heroku addons:create heroku-redis:mini
+```
+
+4. Configure buildpacks:
+```bash
+heroku buildpacks:add heroku/nodejs
+heroku buildpacks:add heroku/ruby
+```
+
+5. Set environment variables:
+```bash
+heroku config:set RAILS_MASTER_KEY=$(cat config/master.key)
+heroku config:set RACK_ENV=production
+heroku config:set RAILS_ENV=production
+```
+
+6. Deploy the application:
+```bash
+git push heroku main
+```
+
+7. Run database migrations:
+```bash
+heroku run rails db:migrate
+```
+
+### Redis Configuration Notes
+
+The app uses Redis for Action Cable (real-time features). On Heroku:
+- Redis connections require TLS
+- The app is configured to use Heroku's SSL termination
+- No additional SSL configuration is needed as it's handled at Heroku's router level
+
+### Common Heroku Issues
+
+1. Redis Connection Errors:
+   - Ensure you're using the latest Redis gem (>= 5.0)
+   - Check if your Redis instance is provisioned: `heroku addons:info redis`
+   - Verify Redis is running: `heroku ps`
+
+2. Real-time Features Not Working:
+   - Check if web dynos are running: `heroku ps`
+   - Review logs for connection issues: `heroku logs --tail`
+   - Ensure Redis configuration is correct in `config/cable.yml`
+
+3. Database Issues:
+   - Run migrations: `heroku run rails db:migrate`
+   - Check database status: `heroku pg:info`
+
 ## Troubleshooting
 
 1. If ActionCable (real-time features) is not working:
