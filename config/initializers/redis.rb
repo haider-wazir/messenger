@@ -4,6 +4,6 @@ $redis = Redis.new(
   url: ENV.fetch('REDIS_URL'),
   ssl: true,
   ssl_params: {
-    verify_mode: OpenSSL::SSL::VERIFY_NONE
+    ca_file: "/etc/ssl/certs/ca-certificates.crt"
   }
 )
