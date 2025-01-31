@@ -303,16 +303,20 @@ export default {
           return
         }
         
-        // Create consumer with token in URL for proper authentication
+        // Disconnect existing connection if any
         if (this.cable) {
           this.cable.disconnect()
         }
         
+        // Create consumer with token in URL for proper authentication
         this.cable = createConsumer(`/cable?token=${token}`)
-        console.log('ActionCable consumer created')
+        console.log('ActionCable consumer created with token:', token)
         
-        this.setupMessageSubscription()
-        this.setupUnreadSubscription()
+        // Wait a bit to ensure connection is established
+        setTimeout(() => {
+          this.setupMessageSubscription()
+          this.setupUnreadSubscription()
+        }, 500)
       } catch (error) {
         console.error('Error setting up ActionCable:', error)
         this.logout()
