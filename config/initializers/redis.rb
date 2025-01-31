@@ -1,17 +1,15 @@
 require 'redis'
 require 'openssl'
 
-redis_url = ENV.fetch('REDIS_URL')
-uri = URI.parse(redis_url)
+redis_options = { url: ENV.fetch('REDIS_URL') }
 
-$redis = if uri.scheme == 'rediss'
-  Redis.new(
-    url: redis_url,
+if Rails.env.production?
+  redis_options.merge!(
     ssl: true,
     ssl_params: {
       verify_mode: OpenSSL::SSL::VERIFY_NONE
     }
   )
-else
-  Redis.new(url: redis_url)
 end
+
+$redis = Redis.new(redis_options)
