@@ -17,9 +17,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "jwt"
 
 # Real-time Features
-gem "redis-client", "~> 0.19"
-gem "redis", "~> 5.0", require: ["redis", "redis/connection/ruby"]
-gem 'hiredis'
+gem "redis", "~> 5.0"
 
 # Frontend Development
 gem "vite_rails", "~> 3.0.19"
