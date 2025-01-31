@@ -57,7 +57,8 @@ Rails.application.configure do
   config.action_cable.mount_path = nil
   config.action_cable.url = ENV["ACTION_CABLE_URL"]
   config.action_cable.allowed_request_origins = [ENV["APP_URL"]].compact
-  config.action_cable.redis = {
+  config.action_cable.cable_args = {
+    adapter: :redis,
     url: ENV["REDIS_URL"],
     ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
   }
