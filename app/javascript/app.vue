@@ -250,14 +250,33 @@ export default {
           recipient_id: this.selectedUser?.id
         }
 
-        const response = await axios.post(endpoint, payload)
-        // Add the message immediately for the sender
-        this.messages.push(response.data)
+        // Add a temporary message with a temporary ID
+        const tempMessage = {
+          id: `temp_${Date.now()}`,
+          content: this.newMessage,
+          sender_id: this.currentUser.id,
+          recipient_id: this.selectedUser?.id,
+          created_at: new Date().toISOString(),
+          sender: this.currentUser,
+          temp: true
+        }
+        this.messages.push(tempMessage)
         this.$nextTick(() => {
           this.scrollToBottom()
         })
         this.newMessage = ''
+
+        // Send the message to the server
+        const response = await axios.post(endpoint, payload)
+        
+        // Replace the temporary message with the real one
+        const index = this.messages.findIndex(m => m.id === tempMessage.id)
+        if (index !== -1) {
+          this.messages.splice(index, 1, response.data)
+        }
       } catch (error) {
+        // Remove the temporary message if sending failed
+        this.messages = this.messages.filter(m => m.id !== tempMessage.id)
         console.error('Error sending message:', error)
       }
     },
