@@ -54,7 +54,7 @@ Rails.application.configure do
   config.action_cable.mount_path = nil
   config.action_cable.url = ENV["ACTION_CABLE_URL"]
   config.action_cable.allowed_request_origins = [ENV["APP_URL"]].compact
-  config.action_cable.redis = { url: ENV["REDIS_URL"] }
+  config.action_cable.backend_redis_config = { url: ENV["REDIS_URL"] }
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
