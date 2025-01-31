@@ -46,9 +46,7 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   config.cache_store = :redis_cache_store, {
-    url: ENV["REDIS_URL"],
-    ssl: true,
-    ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_PEER }
+    url: ENV["REDIS_URL"].gsub('rediss://', 'redis://')
   }
 
   # Use a real queuing backend for Active Job
@@ -60,9 +58,7 @@ Rails.application.configure do
   config.action_cable.allowed_request_origins = [ENV["APP_URL"]].compact
   config.action_cable.cable = {
     adapter: :redis,
-    url: ENV["REDIS_URL"],
-    ssl: true,
-    ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_PEER }
+    url: ENV["REDIS_URL"].gsub('rediss://', 'redis://')
   }
 
   # Don't log any deprecations.
