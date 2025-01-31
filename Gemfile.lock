@@ -287,6 +287,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.1.2)
   redis (~> 5.0)
+  redis-client (~> 0.19)
   rspec-rails
   tzinfo-data
   vite_rails (~> 3.0.19)

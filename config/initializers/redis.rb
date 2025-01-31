@@ -1,9 +1,11 @@
 require 'redis'
+require 'redis-client'
 
-$redis = Redis.new(
+client = RedisClient.new(
   url: ENV.fetch('REDIS_URL'),
   ssl: true,
-  timeout: 1,
   reconnect_attempts: 2,
   ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
 )
+
+$redis = Redis.new(client: client)
