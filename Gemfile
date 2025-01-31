@@ -17,7 +17,8 @@ gem "bcrypt", "~> 3.1.7"
 gem "jwt"
 
 # Real-time Features
-gem "redis", ">= 4.0.1"
+gem "redis", "~> 5.0"
+gem 'hiredis'
 
 # Frontend Development
 gem "vite_rails", "~> 3.0.19"
@@ -25,10 +26,10 @@ gem "vite_ruby", "~> 3.3"
 gem "foreman"
 
 # Cross-platform Compatibility
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 
 group :development, :test do
-  gem "debug", platforms: %i[ mri windows ]
+  gem "debug", platforms: %i[ mri mingw mswin x64_mingw ]
   gem "rspec-rails"
   gem "factory_bot_rails"
 end

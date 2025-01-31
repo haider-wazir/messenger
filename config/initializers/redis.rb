@@ -1,14 +1,9 @@
 require 'redis'
-require 'uri'
-
-redis_url = ENV.fetch('REDIS_URL')
-uri = URI.parse(redis_url)
 
 $redis = Redis.new(
-  url: redis_url,
-  ssl: uri.scheme == 'rediss',
-  ssl_params: { 
-    verify_mode: OpenSSL::SSL::VERIFY_NONE,
-    verify_hostname: false
-  }
+  url: ENV.fetch('REDIS_URL'),
+  ssl: true,
+  timeout: 1,
+  reconnect_attempts: 2,
+  ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }
 )
