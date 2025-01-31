@@ -52,8 +52,8 @@ Rails.application.configure do
 
   # Enable Action Cable for WebSocket support
   config.action_cable.mount_path = nil
-  config.action_cable.url = ENV.fetch('ACTION_CABLE_URL')
-  config.action_cable.allowed_request_origins = [ENV.fetch('APP_URL', 'http://localhost:3000')]
+  config.action_cable.url = ENV.fetch('REDIS_URL').gsub('redis', 'wss')
+  config.action_cable.allowed_request_origins = ['https://the-messenger-549ddb748cd7.herokuapp.com']
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
