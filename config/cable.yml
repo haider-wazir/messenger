@@ -1,6 +1,5 @@
 development:
   adapter: async
-  url: redis://localhost:6379/1
 
 test:
   adapter: test
@@ -8,6 +7,8 @@ test:
 production:
   adapter: redis
   url: <%= ENV.fetch("REDIS_URL") %>
+  ssl: true
   ssl_params:
     verify_mode: <%= OpenSSL::SSL::VERIFY_NONE %>
+    ssl_version: :TLSv1_2
   channel_prefix: messenger_production
