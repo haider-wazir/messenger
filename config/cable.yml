@@ -7,6 +7,8 @@ test:
 production:
   adapter: redis
   url: <%= ENV.fetch("REDIS_URL") %>
+  ssl: <%= URI.parse(ENV.fetch("REDIS_URL")).scheme == 'rediss' %>
   ssl_params:
     verify_mode: <%= OpenSSL::SSL::VERIFY_NONE %>
+    verify_hostname: false
   channel_prefix: messenger_production
